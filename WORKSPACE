@@ -1,7 +1,8 @@
 workspace(name = "io_bazel_rules_scala")
 
-load("//scala:scala.bzl", "scala_repositories", "scala_mvn_artifact")
+load("//scala:scala.bzl", "scala_repositories", "scala_210_repositories", "scala_mvn_artifact")
 scala_repositories()
+scala_210_repositories()
 
 load("//twitter_scrooge:twitter_scrooge.bzl", "twitter_scrooge", "scrooge_scala_library")
 twitter_scrooge()

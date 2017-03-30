@@ -598,9 +598,12 @@ def _scala_junit_test_impl(ctx):
 _implicit_deps = {
   "_ijar": attr.label(executable=True, cfg="host", default=Label("@bazel_tools//tools/jdk:ijar"), allow_files=True),
   "_scalac": attr.label(executable=True, cfg="host", default=Label("//src/java/io/bazel/rulesscala/scalac"), allow_files=True),
-  "_scalalib": attr.label(default=Label("@scala//:lib/scala-library.jar"), single_file=True, allow_files=True),
-  "_scalacompiler": attr.label(default=Label("@scala//:lib/scala-compiler.jar"), single_file=True, allow_files=True),
-  "_scalareflect": attr.label(default=Label("@scala//:lib/scala-reflect.jar"), single_file=True, allow_files=True),
+  #"_scalalib": attr.label(default=Label("@scala//:lib/scala-library.jar"), single_file=True, allow_files=True),
+  #"_scalacompiler": attr.label(default=Label("@scala//:lib/scala-compiler.jar"), single_file=True, allow_files=True),
+  #"_scalareflect": attr.label(default=Label("@scala//:lib/scala-reflect.jar"), single_file=True, allow_files=True),
+  "_scalalib": attr.label(default=Label("//external:io_bazel_rules_scala/dependency/scala210/scala_library"), single_file=True, allow_files=True),
+  "_scalacompiler": attr.label(default=Label("//external:io_bazel_rules_scala/dependency/scala210/scala_compiler"), single_file=True, allow_files=True),
+  "_scalareflect": attr.label(default=Label("//external:io_bazel_rules_scala/dependency/scala210/scala_reflect"), single_file=True, allow_files=True),
   "_java": attr.label(executable=True, cfg="host", default=Label("@bazel_tools//tools/jdk:java"), allow_files=True),
   "_javac": attr.label(executable=True, cfg="host", default=Label("@bazel_tools//tools/jdk:javac"), allow_files=True),
   "_jar": attr.label(executable=True, cfg="host", default=Label("//src/java/io/bazel/rulesscala/jar:binary_deploy.jar"), allow_files=True),
@@ -747,6 +750,54 @@ filegroup(
 )
 """
 
+SCALA_BUILD_FILE_210 = """
+# scala.BUILD
+exports_files([
+  "bin/scala",
+  "bin/scalac",
+  "bin/scaladoc",
+  "lib/jline.jar",
+  "lib/scala-actors.jar",
+  "lib/scala-actors-migration.jar",
+  "lib/scala-compiler.jar",
+  "lib/scala-library.jar",
+  "lib/scala-reflect.jar",
+  "lib/scala-swing.jar",
+])
+
+filegroup(
+    name = "scala-library",
+    srcs = ["lib/scala-library.jar"],
+    visibility = ["//visibility:public"],
+)
+
+filegroup(
+    name = "scala-reflect",
+    srcs = ["lib/scala-reflect.jar"],
+    visibility = ["//visibility:public"],
+)
+
+filegroup(
+    name = "scala-compiler",
+    srcs = ["lib/scala-compiler.jar"],
+    visibility = ["//visibility:public"],
+)
+"""
+
+def scala_210_repositories():
+  native.new_http_archive(
+    name = "scala210",
+    strip_prefix = "scala-2.10.4",
+    url = "http://localhost:8000/scala-2.10.4.tgz",
+    build_file_content = SCALA_BUILD_FILE_210,
+  )
+  
+  native.bind(name = 'io_bazel_rules_scala/dependency/scala210/scala_library', actual = '@scala210//:scala-library')
+  
+  native.bind(name = 'io_bazel_rules_scala/dependency/scala210/scala_reflect', actual = '@scala210//:scala-reflect')
+  
+  native.bind(name = 'io_bazel_rules_scala/dependency/scala210/scala_compiler', actual = '@scala210//:scala-compiler')
+
 def scala_repositories():
   native.new_http_archive(
     name = "scala",
@@ -797,7 +848,8 @@ def scala_export_to_java(name, exports, runtime_deps):
     name = name,
     # these are the outputs of the scala_library targets
     jars = jars,
-    runtime_deps = ["@scala//:lib/scala-library.jar"] + runtime_deps
+    #runtime_deps = ["@scala//:lib/scala-library.jar"] + runtime_deps
+    runtime_deps = ["//external:io_bazel_rules_scala/dependency/scala210/scala_library"] + runtime_deps
   )
 
 def _sanitize_string_for_usage(s):
