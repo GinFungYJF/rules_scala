@@ -12,7 +12,7 @@ java_import(
 
 java_import(
   name = "scala_compiler",
-  jars = ["@scala//:lib/scala-compiler.jar"],
+  jars = ["//external:io_bazel_rules_scala/dependency/scala210/scala_compiler"],
   visibility = ["//visibility:public"],
 )
 

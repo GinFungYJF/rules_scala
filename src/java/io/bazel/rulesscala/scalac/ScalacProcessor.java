@@ -201,10 +201,11 @@ class ScalacProcessor implements Processor {
       constParams,
       scalaSources);
 
-    MainClass comp = new MainClass();
+    //MainClass comp = new MainClass();
     long start = System.currentTimeMillis();
     try {
-      comp.process(compilerArgs);
+      //comp.process(compilerArgs);
+      Main$.MODULE$.process(compilerArgs);
     } catch (Throwable ex) {
       if (ex.toString().contains("scala.reflect.internal.Types$TypeError")) {
         throw new RuntimeException("Build failure with type error", ex);
@@ -218,7 +219,7 @@ class ScalacProcessor implements Processor {
     }
 
 
-    ConsoleReporter reporter = (ConsoleReporter) reporterField.get(comp);
+    ConsoleReporter reporter = (ConsoleReporter) reporterField.get(Main$.MODULE$);
 
     if (reporter.hasErrors()) {
       reporter.printSummary();
